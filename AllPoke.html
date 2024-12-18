@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokémon App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>All Pokémon with type <span id="type_name"></span></h1>
+    <div class="pokemon_list"></div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const type = params.get("type");
+      const typeName = document.getElementById("type_name");
+      typeName.innerText = type;
+
+      async function getAllPokemon() {
+        try {
+          const response = await fetch(
+            `https://pokeapi.co/api/v2/type/${type}`
+          );
+          const data = await response.json();
+          const pokemonList = data.pokemon;
+          console.log(data);
+          const pokemonListContainer = document.querySelector(".pokemon_list");
+
+          pokemonList.forEach((item) => {
+            const url = item.pokemon.url;
+            const parts = url.split("/");
+            const id = parts[parts.length - 2];
+            const pokemonName = document.createElement("a");
+            pokemonName.classList.add("All_names");
+            pokemonName.href = `info.html?name=${item.pokemon.name}`;
+            pokemonName.innerHTML = `
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png" alt="${item.pokemon.name}">
+            <p>${item.pokemon.name}</p>
+            `;
+            // <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${id}.svg" alt="${item.pokemon.name}">
+            pokemonListContainer.appendChild(pokemonName);
+          });
+        } catch (err) {
+          console.error(`Pokémon not found: ${err}`);
+        }
+      }
+
+      getAllPokemon();
+    </script>
+  </body>
+</html>

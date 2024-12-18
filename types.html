@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokémon App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>All Pokémon types</h1>
+    <div class="container"></div>
+    <script>
+      const TypesContainer = document.querySelector(".container");
+
+      async function getPokemon() {
+        try {
+          const response = await fetch("https://pokeapi.co/api/v2/type?offset=0&limit=21");
+          const data = await response.json();
+          const TheData = data.results;
+          console.log(data);
+          TheData.forEach((ele) => {
+            const newLink = document.createElement("a");
+            newLink.classList.add("all_types");
+            newLink.href = `AllPoke.html?type=${ele.name}`;
+            newLink.textContent = ele.name;
+            TypesContainer.appendChild(newLink);
+          });
+        } catch (err) {
+          console.log(`Pokémon not found: ${err}`);
+        }
+      }
+
+      getPokemon();
+    </script>
+  </body>
+</html>
