@@ -9,30 +9,19 @@
   <body>
     <h1>All Pokémon</h1>
     <div class="pokemon_list_all">
-      <input type="text" id="search_bar" placeholder="Enter a Pokemon Name" />
+      <input type="text" id="search_bar" placeholder="Enter a Pokémon Name" />
       <select name="select" id="poke_num">
         <option value="10">10 Pokémon</option>
         <option value="25">25 Pokémon</option>
         <option value="50">50 Pokémon</option>
         <option value="100">100 Pokémon</option>
-        <option value="1302">all Pokémon</option>
       </select>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Abilities</th>
-            <th>HP</th>
-            <th>Attack</th>
-            <th>Defense</th>
-            <th>Speed</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    </div>
+    <div id="pokemon_container"></div>
+    <div class="pagination">
+      <button id="prev_button" disabled>Prev</button>
+      <span id="page_info"></span>
+      <button id="next_button">Next</button>
     </div>
 
     <script>
@@ -40,17 +29,64 @@
       let offset = 0;
       const selectElement = document.getElementById("poke_num");
       const searchInput = document.getElementById("search_bar");
+      const pokemonContainer = document.getElementById("pokemon_container");
+      const prevButton = document.getElementById("prev_button");
+      const nextButton = document.getElementById("next_button");
+      const pageInfo = document.getElementById("page_info");
 
       selectElement.addEventListener("input", () => {
-        const selectVal = parseInt(selectElement.value, 10);
-        limit = selectVal;
+        limit = parseInt(selectElement.value, 10);
         offset = 0;
+        updatePagination();
         getAllPokemon();
       });
 
       searchInput.addEventListener("input", () => {
-        getAllPokemon(searchInput.value);
+        getAllPokemon(searchInput.value.trim());
       });
+
+      prevButton.addEventListener("click", () => {
+        if (offset > 0) {
+          offset -= limit;
+          updatePagination();
+          getAllPokemon();
+        }
+      });
+
+      nextButton.addEventListener("click", () => {
+        offset += limit;
+        updatePagination();
+        getAllPokemon();
+      });
+
+      function updatePagination() {
+        prevButton.disabled = offset === 0;
+        const currentPage = `${Math.floor(offset / limit) + 1} / ${Math.floor(
+          1302 / limit
+        )}`;
+        pageInfo.textContent = `Page ${currentPage}`;
+      }
+
+      const typeColors = {
+        normal: "#A8A878",
+        fire: "#F08030",
+        water: "#6890F0",
+        electric: "#F8D030",
+        grass: "#78C850",
+        ice: "#98D8D8",
+        fighting: "#C03028",
+        poison: "#A040A0",
+        ground: "#E0C068",
+        flying: "#A890F0",
+        psychic: "#F85888",
+        bug: "#A8B820",
+        rock: "#B8A038",
+        ghost: "#705898",
+        dragon: "#7038F8",
+        dark: "#705848",
+        steel: "#B8B8D0",
+        fairy: "#EE99AC",
+      };
 
       async function getAllPokemon(searchQuery = "") {
         try {
@@ -58,21 +94,9 @@
             `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`
           );
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
           const data = await response.json();
-          console.log(data);
           const pokemonList = data.results;
-          const pokemonListContainer =
-            document.querySelector(".pokemon_list_all");
-
-          const table = pokemonListContainer.querySelector("table");
-          const tableBody = table.querySelector("tbody");
-
-          tableBody.innerHTML = "";
-
+          pokemonContainer.innerHTML = "";
           for (const item of pokemonList) {
             if (
               searchQuery &&
@@ -84,39 +108,26 @@
             const pokemonDetailsResponse = await fetch(item.url);
             const pokemonDetails = await pokemonDetailsResponse.json();
 
-            const type = pokemonDetails.types
-              .map((obj) => `<span class="type_all">${obj.type.name}</span>`)
-              .join(" ");
+            const pokemonCard = document.createElement("a");
+            pokemonCard.classList.add("pokemon_card");
+            pokemonCard.href = `info.html?name=${item.name}`;
+            const typeName = pokemonDetails.types[0]?.type.name || "unknown";
+            const typeColor = typeColors[typeName] || "#000";
 
-            const ability = pokemonDetails.abilities
-              .map(
-                (obj) => `<span class="ability_all">${obj.ability.name}</span>`
-              )
-              .join(" ");
-            const hp = pokemonDetails.stats[0].base_stat;
-            const attack = pokemonDetails.stats[1].base_stat;
-            const defense = pokemonDetails.stats[2].base_stat;
-            const speed = pokemonDetails.stats[5].base_stat;
+            pokemonCard.innerHTML = `
+        <img src="${pokemonDetails.sprites.front_default}" alt="${item.name}" />
+        <p>${item.name}</p>
+        <p style="background-color: ${typeColor};">${typeName}</p>
+      `;
 
-            const row = document.createElement("tr");
-            row.innerHTML = ` 
-              <td><img src="${pokemonDetails.sprites.front_default}" alt="${item.name}"/></td>
-              <td>${item.name}</td>
-              <td>${type}</td>
-              <td>${ability}</td>
-              <td>${hp}</td>
-              <td>${attack}</td>
-              <td>${defense}</td>
-              <td>${speed}</td>
-            `;
-
-            tableBody.appendChild(row);
+            pokemonContainer.appendChild(pokemonCard);
           }
         } catch (err) {
-          console.error(`Pokémon not found: ${err}`);
+          console.error(`Error fetching Pokémon data: ${err}`);
         }
       }
 
+      updatePagination();
       getAllPokemon();
     </script>
   </body>
