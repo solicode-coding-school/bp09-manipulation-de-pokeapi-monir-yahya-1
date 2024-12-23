@@ -13,7 +13,7 @@ body {
 
 a {
   text-decoration: none;
-  color: #000;
+  color: #fff;
   text-transform: capitalize;
   font-size: 18px;
   text-align: center;
@@ -129,7 +129,6 @@ button:hover {
   /* padding: 5px; */
   cursor: pointer;
 }
-
 
 /* info page  */
 h2 {

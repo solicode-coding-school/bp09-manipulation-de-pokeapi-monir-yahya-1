@@ -8,13 +8,16 @@
   </head>
   <body>
     <h1>All Pokémon types</h1>
+    <button><a href="./display.html">All Pokemons</a></button>
     <div class="container"></div>
     <script>
       const TypesContainer = document.querySelector(".container");
 
       async function getPokemon() {
         try {
-          const response = await fetch("https://pokeapi.co/api/v2/type?offset=0&limit=21");
+          const response = await fetch(
+            "https://pokeapi.co/api/v2/type?offset=0&limit=21"
+          );
           const data = await response.json();
           const TheData = data.results;
           console.log(data);
